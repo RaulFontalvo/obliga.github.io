@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container mt-5">
+
+      <div class="row d-flex justify-content-center mb-3">
+        <div class="col-3">
+          <input type="text" class="form-control" id="text-box-numero-inventario" placeholder="123456">
+        </div>
+        <div class="col-3">
+          <button type="submit" class="btn btn-primary" onclick="buscarRegistros()">Buscar</button>
+        </div>
+      </div>
+
+
+      <div class="row d-flex justify-content-evenly mb-3">
+        <div class="col-3">
+            <input type="text" class="form-control" id="numero-inventario" placeholder="No. Inventario" readonly>
+        </div>
+        <div class="col-3">
+            <input type="text" class="form-control" id="articulo" placeholder="Artículo" readonly>
+        </div>
+      </div>
+
+      <table id="mantenimientosTable" class="table table-striped">
+        <thead>
+          <tr>
+            <th>ANOG</th>
+            <th>SALDO_IMP</th>
+            <th>SALDO_SAN</th>
+          </tr>
+        </thead>
+        <tbody id="mantenimientosTableBody">
+          <!-- // Aquí se insertará el template -->
+        </tbody>
+      </table>
+    </div>
+
+    <template id="mantenimientosRow">
+      <tr>
+        <td class="mantenimientosFecha"></td>
+        <td class="mantenimientosDescripcion"></td>
+        <td class="mantenimientosAtendio"></td>
+      </tr>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script>
+      function buscarRegistros(){
+        const numeroInventario = document.getElementById("text-box-numero-inventario").value;
+        let infoInventario = document.getElementById("numero-inventario");
+        let infoArticulo = document.getElementById("articulo")
+        
+        google.script.run
+        .withSuccessHandler( info =>{
+          let tableBody = document.getElementById("mantenimientosTableBody");
+          tableBody.innerHTML = "";
+          if( info.length > 0){
+            infoInventario.value = info[0][0];
+            infoArticulo.value = info[0][1];
+
+            info.forEach( mantenimiento=>{
+
+              const template = document.getElementById("mantenimientosRow");
+              const templateRow = template.content;
+
+              let tr = templateRow.cloneNode(true);
+              let colFecha = tr.querySelector(".mantenimientosFecha");
+              let colDescripcion = tr.querySelector(".mantenimientosDescripcion");
+              let colAtendido = tr.querySelector(".mantenimientosAtendio");
+
+              colFecha.textContent = mantenimiento[2];
+              colDescripcion.textContent = mantenimiento[3];
+              colAtendido.textContent = mantenimiento[4];
+
+              tableBody.appendChild(tr);
+            })
+          }else{
+            alert("No se encontró el artículo.");
+          }
+        })
+        .buscarMantenimientos(numeroInventario);
+      }
+    </script>
+  </body>
+</html>
